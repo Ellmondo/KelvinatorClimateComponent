@@ -10,7 +10,7 @@ from functools import partial
 import homeassistant.helpers.config_validation as cv
 
 from homeassistant import data_entry_flow
-from homeassistant.components import dhcp
+from homeassistant.helpers.service_info import dhcp
 from homeassistant.config_entries import ConfigFlow
 from homeassistant import config_entries
 
