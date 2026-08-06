@@ -1,0 +1,43 @@
+{
+  "domain": "electrolux_climate",
+  "name": "Kelvinator Climate",
+  "config_flow": true,
+  "documentation": "https://github.com/Elliottmonaghan/KelvinatorClimateComponent",
+  "issue_tracker": "https://github.com/Elliottmonaghan/KelvinatorClimateComponent/issues",
+  "requirements": ["broadlink==0.19.0"],
+  "codeowners": [
+    "@DotEfekts",
+    "@Elliottmonaghan"
+  ],
+  "dhcp": [
+    {
+      "registered_devices": true
+    },
+    {
+      "macaddress": "34EA34*"
+    },
+    {
+      "macaddress": "24DFA7*"
+    },
+    {
+      "macaddress": "A043B0*"
+    },
+    {
+      "macaddress": "B4430D*"
+    },
+    {
+      "macaddress": "C8F742*"
+    },
+    {
+      "macaddress": "E81656*"
+    },
+    {
+      "macaddress": "E87072*"
+    },
+    {
+      "macaddress": "EC0BAE*"
+    }
+  ],
+  "iot_class": "local_polling",
+  "version": "0.2.0"
+}

@@ -1,0 +1,34 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured",
+            "already_in_progress": "Configuration flow is already in progress",
+            "cannot_connect": "Failed to connect",
+            "invalid_host": "Invalid hostname or IP address",
+            "not_supported": "Device not supported",
+            "unknown": "Unexpected error"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_host": "Invalid hostname or IP address",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Device hostname"
+                },
+                "title": "Connect to the device"
+            },
+            "finish": {
+                "data":{
+                    "name": "Location",
+                    "min_temp": "Minimum Temperature",
+                    "max_temp": "Maximum Temperature"
+                },
+                "description": "Enter the room this AC is in (e.g. \"Living Room\"). This is used as the device's suggested Area and as the prefix for its entity IDs.",
+                "title": "Configure the device"
+            }
+        }
+    }
+}
