@@ -4,6 +4,22 @@ All notable changes to **Kelvinator Climate Component**, relative to
 [DotEfekts/ElectroluxClimateComponent](https://github.com/DotEfekts/ElectroluxClimateComponent)
 at the point it was forked (master, ~Oct 2025).
 
+## [0.2.1] — 2026-10-01 — Stop blocking Home Assistant's event loop
+
+### Fixed
+
+- **Home Assistant could freeze for up to 10 s per device at setup.** The
+  `electrolux` device constructor called `auth()`, a blocking broadlink UDP
+  round-trip, and both `climate.py` and `switch.py` construct the device
+  inside `async_setup()`, i.e. on the event loop. Against an aircon that
+  doesn't answer (they drop off Wi-Fi regularly), each construction stalled
+  the whole of HA until broadlink's 10 s timeout: two per aircon (climate +
+  LED switch), and again on every `ConfigEntryNotReady` retry. HA's
+  blocking-call detector doesn't watch raw UDP sockets, so nothing was
+  logged. The constructor no longer authenticates; `auth()` now runs only in
+  executor jobs (`_discover_serial`, and the existing executor call in each
+  platform's `async_setup`).
+
 ## [0.2.0] — 2026-08-06 — Consistent device/entity naming
 
 ### Fixed

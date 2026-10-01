@@ -22,7 +22,10 @@ class electrolux(Device):
 
     def __init__(self, host: t.Tuple[str, int], mac: t.Union[bytes, str], devtype: int, timeout: int = ..., name: str = "", model: str = "", manufacturer: str = "", is_locked: bool = False) -> None:
         super().__init__(host, mac, devtype, timeout, name, model, manufacturer, is_locked)
-        self.auth()
+        # No auth() here. auth() is a blocking UDP round-trip that can take up
+        # to `timeout` (10 s) against an unresponsive unit, and this
+        # constructor runs on HA's event loop (inside async_setup). Callers
+        # must call auth() themselves, from an executor job.
 
     def _send(self, command: int, data: bytes = b"") -> bytes:
         """Send a packet to the device."""

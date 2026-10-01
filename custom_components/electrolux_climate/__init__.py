@@ -33,7 +33,9 @@ def _discover_serial(host: str) -> str:
     if not discovery or discovery[0].devtype != DEVICE_TYPE:
         return ""
 
-    status = json.loads(create_from_device(discovery[0]).get_status())
+    device = create_from_device(discovery[0])
+    device.auth()  # constructor no longer authenticates; we're in the executor here
+    status = json.loads(device.get_status())
     return status.get("sn", "")
 
 
