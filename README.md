@@ -81,7 +81,7 @@ entities you already have — see the migration note in
 ### Via HACS (recommended)
 
 1. HACS → **⋮** menu → **Custom repositories**
-2. Repository: `https://github.com/Elliottmonaghan/KelvinatorClimateComponent`, Category: **Integration**
+2. Repository: `https://github.com/Ellmondo/KelvinatorClimateComponent`, Category: **Integration**
 3. Install **Kelvinator Climate**, then restart Home Assistant
 
 ### Manual

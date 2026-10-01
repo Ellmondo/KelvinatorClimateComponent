@@ -31,13 +31,13 @@ integration goes to [DotEfekts](https://github.com/DotEfekts).
 - 🧹 Config entry migration now goes through the supported Home Assistant
   API instead of direct attribute assignment.
 
-Full details: [CHANGELOG.md](https://github.com/Elliottmonaghan/KelvinatorClimateComponent/blob/master/CHANGELOG.md)
+Full details: [CHANGELOG.md](https://github.com/Ellmondo/KelvinatorClimateComponent/blob/master/CHANGELOG.md)
 
 ## Installation
 
 **Via HACS:**
 1. HACS → **⋮** → **Custom repositories**
-2. Add `https://github.com/Elliottmonaghan/KelvinatorClimateComponent` as an **Integration**
+2. Add `https://github.com/Ellmondo/KelvinatorClimateComponent` as an **Integration**
 3. Install **Kelvinator Climate**, restart Home Assistant
 
 **Manual:** copy `custom_components/electrolux_climate` into your `config/custom_components/` directory and restart.
@@ -59,4 +59,4 @@ manually by IP.
   aren't yet exposed as entities.
 - Local-only — no fallback to the Electrolux cloud API.
 
-**Full Changelog**: https://github.com/Elliottmonaghan/KelvinatorClimateComponent/commits/v0.1.0
+**Full Changelog**: https://github.com/Ellmondo/KelvinatorClimateComponent/commits/v0.1.0
