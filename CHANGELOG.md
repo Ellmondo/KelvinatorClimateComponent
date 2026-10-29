@@ -4,6 +4,20 @@ All notable changes to **Kelvinator Climate Component**, relative to
 [DotEfekts/ElectroluxClimateComponent](https://github.com/DotEfekts/ElectroluxClimateComponent)
 at the point it was forked (master, ~Oct 2025).
 
+## [0.2.2] — 2026-10-29 — `set_temperature` honours `hvac_mode`
+
+### Fixed
+
+- **`climate.set_temperature` with an `hvac_mode` didn't turn the unit on.**
+  HA passes `hvac_mode` through to the entity, but `set_temperature` only
+  sent the setpoint, so a powered-off unit beeped and stayed off, with
+  nothing logged. It now sets the mode first (through `set_hvac_mode`: power
+  on, then mode), then the temperature. With `hvac_mode: off` it turns the
+  unit off and skips the setpoint.
+- `set_temperature` no longer raises `KeyError` when called without a
+  `temperature`, and no longer silently ignores a setpoint that isn't a
+  float.
+
 ## [0.2.1] — 2026-10-01 — Stop blocking Home Assistant's event loop
 
 ### Fixed

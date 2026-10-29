@@ -22,6 +22,7 @@ from broadlink.const import DEFAULT_TIMEOUT
 from broadlink.exceptions import AuthenticationError, NetworkTimeoutError, BroadlinkException
 
 from homeassistant.components.climate.const import (
+    ATTR_HVAC_MODE,
     FAN_AUTO,
     FAN_HIGH,
     FAN_LOW,
@@ -35,7 +36,7 @@ from homeassistant.components.climate.const import (
     HVACMode,
 )
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
-from homeassistant.const import UnitOfTemperature, CONF_HOST, CONF_MAC, CONF_NAME
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature, CONF_HOST, CONF_MAC, CONF_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -240,8 +241,23 @@ class ElectroluxClimateEntity(ClimateEntity):
         self._run(self.device.set_swing, swing_mode == SWING_VERTICAL)
 
     def set_temperature(self, **kwargs):
-        if isinstance(kwargs["temperature"], float):
-            self._run(self.device.set_temp, int(kwargs["temperature"]))
+        # climate.set_temperature may carry an hvac_mode. HA core passes it
+        # through to the entity and does nothing with it itself, so it's ours
+        # to honour. Mode goes first, through set_hvac_mode (power on + mode,
+        # the path that actually starts the unit); only then the setpoint.
+        # Before this, the mode was dropped: a powered-off unit just beeped at
+        # the new setpoint and stayed off.
+        hvac_mode = kwargs.get(ATTR_HVAC_MODE)
+        if hvac_mode is not None:
+            self.set_hvac_mode(hvac_mode)
+            if hvac_mode == HVACMode.OFF:
+                # Turning off: don't send a setpoint to a unit we've just
+                # switched off (it would only beep).
+                return
+
+        temperature = kwargs.get(ATTR_TEMPERATURE)
+        if temperature is not None:
+            self._run(self.device.set_temp, int(temperature))
 
     async def async_setup(self):
         """Set up the device and related entities."""
