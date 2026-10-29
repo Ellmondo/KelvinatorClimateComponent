@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import typing as t
 
 import voluptuous as vol
@@ -39,6 +40,16 @@ from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature, CONF_HOST, CONF_MAC, CONF_NAME
 
 _LOGGER = logging.getLogger(__name__)
+
+# Power-on is followed by "LED off" before any other command, because the
+# units beep on every command while the display is on. A unit that has just
+# powered on can take a while to act on it, so we read the LED back from the
+# status and retry, within a bounded time, using a short per-packet timeout so
+# a silent unit can't stall the command for 10 s a try. Silence is cosmetic:
+# if the LED won't confirm off, the real command is sent anyway.
+LED_OFF_DEADLINE = 8.0  # seconds, total, for the LED-off step
+LED_OFF_SETTLE = 1.0    # seconds between sending LED off and reading it back
+LED_OFF_TIMEOUT = 2     # broadlink per-packet timeout during this step
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
@@ -188,8 +199,34 @@ class ElectroluxClimateEntity(ClimateEntity):
                 f"Couldn't reach {self.location} Air Conditioner: {err}"
             ) from err
 
-    def turn_on(self):
+    def _power_on_quietly(self):
+        """Power the unit on, then turn its LED off before anything else is
+        sent, so the commands that follow don't beep."""
         self._run(self.device.set_power, True)
+
+        deadline = time.monotonic() + LED_OFF_DEADLINE
+        saved_timeout = self.device.timeout
+        self.device.timeout = LED_OFF_TIMEOUT
+        try:
+            attempt = 0
+            while time.monotonic() < deadline:
+                attempt += 1
+                try:
+                    self.device.set_led(False)
+                    time.sleep(LED_OFF_SETTLE)
+                    if json.loads(self.device.get_status()).get("scrdisp") == 0:
+                        _LOGGER.debug("%s Air Conditioner: LED off after power-on (attempt %d)", self.location, attempt)
+                        return
+                except (NetworkTimeoutError, OSError, BroadlinkException, ValueError) as err:
+                    _LOGGER.debug("%s Air Conditioner: LED off attempt %d failed: %s", self.location, attempt, err)
+            _LOGGER.info(
+                "%s Air Conditioner: LED didn't confirm off within %.0f s of power-on; "
+                "sending the command anyway (it may beep)", self.location, LED_OFF_DEADLINE)
+        finally:
+            self.device.timeout = saved_timeout
+
+    def turn_on(self):
+        self._power_on_quietly()
 
     def turn_off(self):
         self._run(self.device.set_power, False)
@@ -216,7 +253,7 @@ class ElectroluxClimateEntity(ClimateEntity):
             self._run(self.device.set_power, False)
         if hvac_mode != HVACMode.OFF:
             if self.hvac_mode == HVACMode.OFF:
-                self._run(self.device.set_power, True)
+                self._power_on_quietly()
             self._run(self.device.set_mode, self.convert_to_ele_mode(hvac_mode))
 
     def convert_to_ele_fan(self, fan_mode: t.Literal) -> electrolux.fan:

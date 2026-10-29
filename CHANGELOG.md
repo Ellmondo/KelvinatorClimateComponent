@@ -4,6 +4,20 @@ All notable changes to **Kelvinator Climate Component**, relative to
 [DotEfekts/ElectroluxClimateComponent](https://github.com/DotEfekts/ElectroluxClimateComponent)
 at the point it was forked (master, ~Oct 2025).
 
+## [0.2.3] — 2026-10-29 — Silent commands after power-on
+
+### Changed
+
+- **Powering a unit on now turns its LED off before anything else is
+  sent.** The units beep on every command while the display is on, so
+  power on → LED off → mode / temperature makes the whole sequence silent.
+  Applies to `climate.turn_on`, `set_hvac_mode` and `set_temperature` with
+  an `hvac_mode`, whenever the unit was off. A unit that's just powered on
+  can be slow to act, so the LED state is read back from the unit's status
+  and LED off is retried for up to 8 s (2 s per-packet timeout during this
+  step). If it still won't confirm, the command is sent anyway and may beep.
+  The LED switch can turn the display back on afterwards.
+
 ## [0.2.2] — 2026-10-29 — `set_temperature` honours `hvac_mode`
 
 ### Fixed
